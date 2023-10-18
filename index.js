@@ -24,9 +24,26 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
+    const productCollection = client.db("collectionDB").collection("product");
+    const advisingCollection = client.db("AdvisingDB").collection("Data");
 
+    app.get('/product/:name', async (req, res)=>{
+        const brandName = req.params.name;
+        const data = await productCollection.find({ 'company': brandName }).toArray();
+        res.send(data);
+    })
 
-
+    app.get('/advisig/:name', async (req, res)=>{
+        const brandName = req.params.name;
+        const data = await advisingCollection.find({ 'company': brandName }).toArray();
+        res.send(data);
+    })
+    
+    app.post('/product', async (req, res)=>{
+        const data = req.body;
+        const result = await productCollection.insertOne(data);
+        res.send(result);
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
