@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = "mongodb+srv://rayhanalmim1:mlRzlTCLnlvrTBil@cluster0.tdvw5wt.mongodb.net/?retryWrites=true&w=majority";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -33,6 +33,20 @@ async function run() {
         res.send(data);
     })
 
+    app.get('/productDetails/:id', async(req, res)=>{
+        const id = req.params.id;
+        const cursor = {_id: new ObjectId(id)};
+        const result = await productCollection.findOne(cursor);
+        res.send(result);
+    })
+
+    app.get('/update/:id', async(req, res)=>{
+        const id = req.params.id;
+        const cursor = {_id: new ObjectId(id)};
+        const result = await productCollection.findOne(cursor);
+        res.send(result);
+    })
+
     app.get('/advisig/:name', async (req, res)=>{
         const brandName = req.params.name;
         const data = await advisingCollection.find({ 'company': brandName }).toArray();
@@ -43,6 +57,26 @@ async function run() {
         const data = req.body;
         const result = await productCollection.insertOne(data);
         res.send(result);
+    })
+
+    app.put('/product/:id', async(req, res) =>{
+        const product = req.body;
+        const id = req.params.id;
+        const filter = {_id: new ObjectId(id)};
+        const options = { upsert: true };
+        const updateDoc = {
+            $set: {
+                 productName: product.productName,
+                 category: product.category,
+                 company: product.company,
+                 price: product.price,
+                 photoUrl: product.photoUrl,
+                 rating: product.rating,
+                 productDetails: product.productDetails,
+            },
+          };
+          const result = await productCollection.updateOne(filter, updateDoc, options);
+          res.send(result);
     })
 
     // Send a ping to confirm a successful connection
