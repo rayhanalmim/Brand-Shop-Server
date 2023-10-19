@@ -15,17 +15,18 @@ const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
-    deprecationErrors: true,
+    deprecationErrors: true, 
   }
 });
 
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const productCollection = client.db("collectionDB").collection("product");
     const advisingCollection = client.db("AdvisingDB").collection("Data");
+    const cardCollection = client.db("CardDB").collection("card");
 
     app.get('/product/:name', async (req, res)=>{
         const brandName = req.params.name;
@@ -59,6 +60,32 @@ async function run() {
         res.send(result);
     })
 
+    app.get('/card',async (req, res) =>{
+        const result = await cardCollection.find().toArray();
+        res.send(result)
+    })
+
+    app.post('/card', async (req, res)=>{
+        const data = req.body;
+        const result = await cardCollection.insertOne(data);
+        res.send(result);
+    })
+
+    
+    app.get('/card/:email', async (req, res)=>{
+        const email = req.params.email;
+        const data = await cardCollection.find({ 'UserEmail': email }).toArray();
+        res.send(data);
+    })
+
+    app.delete('/card/:id', async(req, res)=>{
+        const id = req.params.id;
+        typeof(id);
+        const user = {_id: (id)}
+        const result = await cardCollection.deleteOne(user);
+        res.send(result);
+    })
+
     app.put('/product/:id', async(req, res) =>{
         const product = req.body;
         const id = req.params.id;
@@ -72,12 +99,13 @@ async function run() {
                  price: product.price,
                  photoUrl: product.photoUrl,
                  rating: product.rating,
-                 productDetails: product.productDetails,
             },
           };
           const result = await productCollection.updateOne(filter, updateDoc, options);
           res.send(result);
     })
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
