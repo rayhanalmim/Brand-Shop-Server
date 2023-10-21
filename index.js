@@ -27,6 +27,7 @@ async function run() {
     const productCollection = client.db("collectionDB").collection("product");
     const advisingCollection = client.db("AdvisingDB").collection("Data");
     const cardCollection = client.db("CardDB").collection("card");
+    const userReview = client.db("UserReview").collection("review");
 
     app.get('/product/:name', async (req, res)=>{
         const brandName = req.params.name;
@@ -62,6 +63,11 @@ async function run() {
 
     app.get('/card',async (req, res) =>{
         const result = await cardCollection.find().toArray();
+        res.send(result)
+    })
+
+    app.get('/review',async (req, res) =>{
+        const result = await userReview.find().toArray();
         res.send(result)
     })
 
@@ -108,7 +114,7 @@ async function run() {
 
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
